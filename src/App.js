@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-state-management/
 
 const numRows = 50;
@@ -32,6 +32,29 @@ const App = () => {
     display: 'grid',
     gridTemplateColumns: `repeat(${numColumns}, 20px)`,
   };
+
+  /* Since runSim will only render once, the value for our base case will not be
+  updated to the current value of running. Here I use the useRef() hook to solve
+  that. It creates a mutable .current reference object that does not cause a re-render when
+  it value is updated https://reactjs.org/docs/hooks-reference.html#useref. */
+
+  const runRef = useRef(running);
+  runRef.current = running;
+
+  /* The run simulator of the life of the cells, this function will recursively
+  call itself until the button, it will be used on, is clicked to stop it. useCallback()
+  will return a memoized version of the callback that only changes if one of the 
+  dependencies has changed. This will prevent unnecessary re-renders
+  https://reactjs.org/docs/hooks-reference.html#usecallback. */
+
+  const runSim = useCallback(() => {
+    // the base case
+    if (!runRef.current) {
+      return;
+    }
+    // the simulation
+    setTimeout(runSim, 1000);
+  });
 
   return (
     <>
