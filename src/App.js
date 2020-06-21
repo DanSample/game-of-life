@@ -33,7 +33,7 @@ const App = () => {
     gridTemplateColumns: `repeat(${numColumns}, 20px)`,
   };
 
-  /* Since runSim will only render once, the value for our base case will not be
+  /* Since runSim will only render once, the value for our base case will not stay
   updated to the current value of running. Here I use the useRef() hook to solve
   that. It creates a mutable .current reference object that does not cause a re-render when
   it value is updated https://reactjs.org/docs/hooks-reference.html#useref. */
