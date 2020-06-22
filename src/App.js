@@ -3,6 +3,16 @@ import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-stat
 
 const numRows = 50;
 const numColumns = 50;
+const neighboringCells = [
+  [0, 1],
+  [0, -1],
+  [1, 0],
+  [-1, 0],
+  [-1, 1],
+  [1, 1],
+  [-1, -1],
+  [1, -1],
+];
 
 const App = () => {
   const [running, setRunning] = useState(false);
@@ -18,6 +28,20 @@ const App = () => {
     }
     return rows;
   });
+
+  const randomGrid = () => {
+    const rows = []; // Create rows
+    for (let i = 0; i < numRows; i++) {
+      // A lot like the logic above, in the main function setting the grid. This will
+      // randomly generate the cells on the grid to populate.
+      rows.push(
+        Array.from(Array(numCols), () => (Math.random() > 0.5 ? 1 : 0))
+      ); // the second parameter of Array.from is a mapping function that gives a key and
+      // value, you can initialize the values, which I'm doing here.
+    }
+    // set the grid in state
+    setGrid(rows);
+  };
 
   // Created some objects for styling the grid layout
 
