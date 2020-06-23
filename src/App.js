@@ -22,8 +22,8 @@ const neighboringCells = [
 // The main function, setting the running and initial grid state.
 
 const App = () => {
-  const [running, setRunning] = useState(false);
   const [generation, setGeneration] = useState(0);
+  const [running, setRunning] = useState(false);
   const [grid, setGrid] = useState(() => {
     // initialize [rows]
     const rows = [];
@@ -36,6 +36,12 @@ const App = () => {
     }
     return rows;
   });
+
+  // A function to deal with deep coping the grid, for the double buffer
+
+  function arrayClone(arr) {
+    return JSON.parse(JSON.stringify(arr));
+  }
 
   // Created some objects for styling the grid layout
 
@@ -67,6 +73,8 @@ const App = () => {
     setGrid(rows);
   };
 
+  // Set the generation state
+
   /* Since runSim will only render once, the value for our base case will not stay
   updated to the current value of running. Here I use the useRef() hook to solve
   that. It creates a mutable .current reference object that does not cause a re-render when
@@ -75,20 +83,54 @@ const App = () => {
   const runningRef = useRef(running);
   runningRef.current = running;
 
+  const gridRef = useRef(grid);
+  gridRef.current = grid;
+
+  const genRef = useRef(generation);
+  genRef.current = generation;
+
   /* The run simulator of the life of the cells, this function will recursively
   call itself until the button, it will be used on, is clicked to stop it. useCallback()
   will return a memoized version of the callback that only changes if one of the 
   dependencies has changed. This will prevent unnecessary re-renders
   https://reactjs.org/docs/hooks-reference.html#usecallback. */
 
-  const runSim = useCallback(() => {
+  const runSim = () => {
+    let currentGrid = grid;
+    let newGrid = arrayClone(grid);
     // the base case
-    if (!runningRef.current) {
+    if (!running) {
       return;
     }
     // the simulation
+    for (let i = 0; i < numRows; i++) {
+      // and iterate through all columns
+      for (let j = 0; j < numColumns; j++) {
+        // n is for neighbors
+        let neighbors = 0;
+
+        // Check every sub array of the neighborLogic array
+        neighboringCells.forEach(([a, b]) => {
+          // Set new values for the sub array based on i and j location
+          const newI = i + a;
+          const newJ = j + b;
+          // Ensure that we don't go outside our 8 neighbors
+          if (newI >= 0 && newI < numRows && newJ >= 0 && newJ < numColumns) {
+            neighbors += currentGrid[newI][newJ];
+          }
+        });
+
+        if (neighbors < 2 || neighbors > 3) {
+          newGrid[i][j] = 0;
+        } else if (currentGrid[i][j] === 0 && neighbors === 3) {
+          newGrid[i][j] = 1;
+        }
+      }
+    }
+    setGrid(newGrid);
+    setGeneration(generation + 1);
     setTimeout(runSim, 1000);
-  });
+  };
 
   return (
     <>
