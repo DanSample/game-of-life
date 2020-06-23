@@ -35,7 +35,7 @@ const App = () => {
       // A lot like the logic above, in the main function setting the grid. This will
       // randomly generate the cells on the grid to populate.
       rows.push(
-        Array.from(Array(numCols), () => (Math.random() > 0.5 ? 1 : 0))
+        Array.from(Array(numColumns), () => (Math.random() > 0.5 ? 1 : 0))
       ); // the second parameter of Array.from is a mapping function that gives a key and
       // value, you can initialize the values, which I'm doing here.
     }
