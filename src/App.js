@@ -1,8 +1,13 @@
 import React, { useState, useCallback, useRef } from 'react';
 import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-state-management/
 
+// Instantiated a couple variables for the row and columns
+
 const numRows = 50;
 const numColumns = 50;
+
+// Logic to deal with the neighboring cells
+
 const neighboringCells = [
   [0, 1],
   [0, -1],
@@ -14,8 +19,11 @@ const neighboringCells = [
   [1, -1],
 ];
 
+// The main function, setting the running and initial grid state.
+
 const App = () => {
   const [running, setRunning] = useState(false);
+  const [generation, setGeneration] = useState(0);
   const [grid, setGrid] = useState(() => {
     // initialize [rows]
     const rows = [];
@@ -28,20 +36,6 @@ const App = () => {
     }
     return rows;
   });
-
-  const randomGrid = () => {
-    const rows = []; // Create rows
-    for (let i = 0; i < numRows; i++) {
-      // A lot like the logic above, in the main function setting the grid. This will
-      // randomly generate the cells on the grid to populate.
-      rows.push(
-        Array.from(Array(numColumns), () => (Math.random() > 0.5 ? 1 : 0))
-      ); // the second parameter of Array.from is a mapping function that gives a key and
-      // value, you can initialize the values, which I'm doing here.
-    }
-    // set the grid in state
-    setGrid(rows);
-  };
 
   // Created some objects for styling the grid layout
 
@@ -57,13 +51,29 @@ const App = () => {
     gridTemplateColumns: `repeat(${numColumns}, 20px)`,
   };
 
+  // A function to randomize the grid
+
+  const randomGrid = () => {
+    const rows = []; // Create rows
+    for (let i = 0; i < numRows; i++) {
+      // A lot like the logic above, in the main function setting the grid. This will
+      // randomly generate the cells on the grid to populate.
+      rows.push(
+        Array.from(Array(numColumns), () => (Math.random() > 0.5 ? 1 : 0))
+      ); // the second parameter of Array.from is a mapping function that gives a key and
+      // value, you can initialize the values, which I'm doing here randomly with math.random().
+    }
+    // set the grid in state
+    setGrid(rows);
+  };
+
   /* Since runSim will only render once, the value for our base case will not stay
   updated to the current value of running. Here I use the useRef() hook to solve
   that. It creates a mutable .current reference object that does not cause a re-render when
   it value is updated https://reactjs.org/docs/hooks-reference.html#useref. */
 
-  const runRef = useRef(running);
-  runRef.current = running;
+  const runningRef = useRef(running);
+  runningRef.current = running;
 
   /* The run simulator of the life of the cells, this function will recursively
   call itself until the button, it will be used on, is clicked to stop it. useCallback()
@@ -73,7 +83,7 @@ const App = () => {
 
   const runSim = useCallback(() => {
     // the base case
-    if (!runRef.current) {
+    if (!runningRef.current) {
       return;
     }
     // the simulation
@@ -87,7 +97,14 @@ const App = () => {
           setRunning(!running);
         }}
       >
-        {running ? 'stop' : 'start'}
+        {running ? 'Stop' : 'Start'}
+      </button>
+      <button
+        onClick={() => {
+          randomGrid();
+        }}
+      >
+        Random
       </button>
       <div style={gridStyle}>
         {grid.map((rows, x) =>
