@@ -57,6 +57,11 @@ class App extends Component {
     clearInterval(this.intervalId);
   };
 
+  slow = () => {
+    this.speed = 1000;
+    this.startButton();
+  };
+
   // A function to randomize the grid
 
   const randomGrid = () => {
