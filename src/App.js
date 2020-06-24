@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-state-management/
 
 // Instantiated a couple variables for the row and columns
@@ -36,6 +36,8 @@ const App = () => {
     }
     return rows;
   });
+
+  console.log(grid);
 
   // A function to deal with deep coping the grid, for the double buffer
 
@@ -126,17 +128,24 @@ const App = () => {
           newGrid[i][j] = 1;
         }
       }
+      return newGrid;
     }
     setGrid(newGrid);
+    console.log(newGrid, 'this is the new grid state');
     setGeneration(generation + 1);
+    console.log(running, grid);
     setTimeout(runSim, 1000);
   };
+
+  useEffect(() => {
+    setRunning(runningRef.current);
+  }, [runningRef]);
 
   return (
     <>
       <button
         onClick={() => {
-          setRunning(!running);
+          runSim();
         }}
       >
         {running ? 'Stop' : 'Start'}
