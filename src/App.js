@@ -19,7 +19,7 @@ const neighboringCells = [
   [1, -1],
 ];
 
-// The main function, setting the running and initial grid state.
+// The main function, setting the initial state.
 
 class App extends Component {
   constructor() {
@@ -31,6 +31,37 @@ class App extends Component {
       grid: Array(this.rows).fills().map(() => Array(this.columns).fill(false))
     }
   }
+
+  // This is to handle the different grid sizes 
+
+gridSize = size => {
+  switch (size) {
+    case "1":
+      this.columns = 30;
+      this.rows = 20;
+      break;
+    case "2":
+      this.columns = 60;
+      this.rows = 40;
+      break;
+    default:
+      this.columns = 80;
+      this.rows = 60;
+  }
+  this.reset();
+};
+
+// This will reset the grid when called
+
+reset = () => {
+  let grid = Array(this.rows)
+    .fill()
+    .map(() => Array(this.cols).fill(false));
+  this.setState({
+    gridFull: grid,
+    generation: 0
+  });
+};
 
   // A function to deal with deep coping the grid, for the double buffer
 
@@ -62,9 +93,14 @@ class App extends Component {
     this.startButton();
   };
 
+  fast = () => {
+    this.speed = 100;
+    this.startButton();
+  };
+
   // A function to randomize the grid
 
-  const randomGrid = () => {
+  randomGrid = () => {
     const rows = []; // Create rows
     for (let i = 0; i < numRows; i++) {
       // A lot like the logic above, in the main function setting the grid. This will
@@ -75,32 +111,12 @@ class App extends Component {
       // value, you can initialize the values, which I'm doing here randomly with math.random().
     }
     // set the grid in state
-    setGrid(rows);
+    this.setState({
+      grid: rows
+    })
   };
 
-  // Set the generation state
-
-  /* Since runSim will only render once, the value for our base case will not stay
-  updated to the current value of running. Here I use the useRef() hook to solve
-  that. It creates a mutable .current reference object that does not cause a re-render when
-  it value is updated https://reactjs.org/docs/hooks-reference.html#useref. */
-
-  const runningRef = useRef(running);
-  runningRef.current = running;
-
-  const gridRef = useRef(grid);
-  gridRef.current = grid;
-
-  const genRef = useRef(generation);
-  genRef.current = generation;
-
-  /* The run simulator of the life of the cells, this function will recursively
-  call itself until the button, it will be used on, is clicked to stop it. useCallback()
-  will return a memoized version of the callback that only changes if one of the 
-  dependencies has changed. This will prevent unnecessary re-renders
-  https://reactjs.org/docs/hooks-reference.html#usecallback. */
-
-  const runSim = () => {
+  runSim = () => {
     let currentGrid = grid;
     let newGrid = arrayClone(grid);
     // the base case
