@@ -23,59 +23,62 @@ const neighboringCells = [
 
 class App extends Component {
   constructor() {
+    super();
     this.speed = 100;
     this.rows = 30;
     this.columns = 50;
     this.state = {
       generation: 0,
-      grid: Array(this.rows).fills().map(() => Array(this.columns).fill(false))
+      grid: Array(this.rows)
+        .fills()
+        .map(() => Array(this.columns).fill(false)),
+    };
+  }
+
+  // This is to handle the different grid sizes
+
+  gridSize = (size) => {
+    switch (size) {
+      case '1':
+        this.columns = 30;
+        this.rows = 20;
+        break;
+      case '2':
+        this.columns = 60;
+        this.rows = 40;
+        break;
+      default:
+        this.columns = 80;
+        this.rows = 60;
     }
-  }
+    this.reset();
+  };
 
-  // This is to handle the different grid sizes 
+  // This will reset the grid when called
 
-gridSize = size => {
-  switch (size) {
-    case "1":
-      this.columns = 30;
-      this.rows = 20;
-      break;
-    case "2":
-      this.columns = 60;
-      this.rows = 40;
-      break;
-    default:
-      this.columns = 80;
-      this.rows = 60;
-  }
-  this.reset();
-};
-
-// This will reset the grid when called
-
-reset = () => {
-  let grid = Array(this.rows)
-    .fill()
-    .map(() => Array(this.cols).fill(false));
-  this.setState({
-    gridFull: grid,
-    generation: 0
-  });
-};
+  reset = () => {
+    let grid = Array(this.rows)
+      .fill()
+      .map(() => Array(this.cols).fill(false));
+    this.setState({
+      gridFull: grid,
+      generation: 0,
+    });
+  };
 
   // A function to deal with deep coping the grid, for the double buffer
 
   deepCopy = (arr) => {
     return JSON.parse(JSON.stringify(arr));
-  }
+  };
 
-  // A function to turn cells on and off 
+  // A function to turn cells on and off
 
   selectBox = (row, col) => {
-    let gridCopy = arrayClone(this.state.gridFull);
+    let gridCopy = this.deepCopy(this.state.gridFull);
     gridCopy[row][col] = !gridCopy[row][col];
     this.setState({
-      gridFull: gridCopy
+      gridFull: gridCopy,
     });
   };
 
@@ -112,34 +115,30 @@ reset = () => {
     }
     // set the grid in state
     this.setState({
-      grid: rows
-    })
+      grid: rows,
+    });
   };
 
   runSim = () => {
-    let currentGrid = grid;
-    let newGrid = arrayClone(grid);
-    // the base case
-    if (!running) {
-      return;
-    }
-    // the simulation
+    let currentGrid = this.state.grid;
+    let newGrid = this.deepCopy(this.state.grid);
+    // Iterate over the rows and columns
     for (let i = 0; i < numRows; i++) {
-      // and iterate through all columns
       for (let j = 0; j < numColumns; j++) {
-        // n is for neighbors
         let neighbors = 0;
 
-        // Check every sub array of the neighborLogic array
+        // Check every neighboring cell
         neighboringCells.forEach(([a, b]) => {
-          // Set new values for the sub array based on i and j location
+          // Set new values for the neighboring cells based on i and j location
           const newI = i + a;
           const newJ = j + b;
-          // Ensure that we don't go outside our 8 neighbors
+          // Make sure we don't go beyond the neighboring cells
           if (newI >= 0 && newI < numRows && newJ >= 0 && newJ < numColumns) {
             neighbors += currentGrid[newI][newJ];
           }
         });
+
+        // Changes depending on neighboring cells
 
         if (neighbors < 2 || neighbors > 3) {
           newGrid[i][j] = 0;
@@ -147,61 +146,31 @@ reset = () => {
           newGrid[i][j] = 1;
         }
       }
-      return newGrid;
+      this.setState({ grid: newGrid });
     }
-    setGrid(newGrid);
-    console.log(newGrid, 'this is the new grid state');
-    setGeneration(generation + 1);
-    console.log(running, grid);
-    setTimeout(runSim, 1000);
   };
 
-  useEffect(() => {
-    setRunning(runningRef.current);
-  }, [runningRef]);
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          runSim();
-        }}
-      >
-        {running ? 'Stop' : 'Start'}
-      </button>
-      <button
-        onClick={() => {
-          randomGrid();
-        }}
-      >
-        Random
-      </button>
-      <div style={gridStyle}>
-        {grid.map((rows, x) =>
-          rows.map((col, y) => (
-            <div
-              key={`${x}-${y}`}
-              /*  Since state is meant to be immutable, I am using the produce() function 
-            from Immer to create a "draft" of the state. This allows the draft of state 
-            to be safely manipulated without disturbing the original state. The draft is
-            given to a messenger then returns the draft to the state. The changes made to 
-            the draft, then get applied to the state. In this way, It does not break the 
-            idea of an immutable state, as the current state does not get updated directly. 
-            */
-              onClick={() => {
-                setGrid(
-                  produce(grid, (gridDraft) => {
-                    gridDraft[x][y] = grid[x][y] ? 0 : 1;
-                  })
-                );
-              }}
-              style={columnStyle(x, y)}
-            />
-          ))
-        )}
-      </div>
-    </>
-  );
-};
+  render() {
+    return (
+      <>
+        <button
+          onClick={() => {
+            this.runSim();
+          }}
+        >
+          {'Start'}
+        </button>
+        <button
+          onClick={() => {
+            this.randomGrid();
+          }}
+        >
+          Randomize
+        </button>
+        <div></div>
+      </>
+    );
+  }
+}
 
 export default App;
