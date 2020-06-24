@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { Component } from 'react';
 import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-state-management/
 
 // Instantiated a couple variables for the row and columns
@@ -21,42 +21,60 @@ const neighboringCells = [
 
 // The main function, setting the running and initial grid state.
 
-const App = () => {
-  const [generation, setGeneration] = useState(0);
-  const [running, setRunning] = useState(false);
-  const [grid, setGrid] = useState(() => {
-    // initialize [rows]
-    const rows = [];
-    // iterate over the numRows to create the grid
-    for (let i = 0; i < numRows; i++) {
-      // Generate an array with Array and assign its length with numColumns
-      // Array.from will generate the array and initializes the values to 0.
-      // Push those values to the [rows]
-      rows.push(Array.from(Array(numColumns), () => 0));
+class App extends Component {
+  constructor() {
+    this.speed = 100;
+    this.rows = 30;
+    this.columns = 50;
+    this.state = {
+      generation: 0,
+      grid: Array(this.rows).fills().map(() => Array(this.columns).fill(false))
     }
-    return rows;
-  });
-
-  console.log(grid);
+  }
 
   // A function to deal with deep coping the grid, for the double buffer
 
-  function arrayClone(arr) {
+  deepCopy = (arr) => {
     return JSON.parse(JSON.stringify(arr));
   }
 
-  // Created some objects for styling the grid layout
+  // A function to turn cells on and off 
 
-  const columnStyle = (x, y) => ({
-    width: '20px',
-    height: '20px',
-    backgroundColor: grid[x][y] ? 'black' : 'white',
-    border: 'solid 1px black',
-  });
+  selectBox = (row, col) => {
+    let gridCopy = arrayClone(this.state.gridFull);
+    gridCopy[row][col] = !gridCopy[row][col];
+    this.setState({
+      gridFull: gridCopy
+    });
+  };
 
-  const gridStyle = {
-    display: 'grid',
-    gridTemplateColumns: `repeat(${numColumns}, 20px)`,
+  startButton = () => {
+    clearInterval(this.intervalId);
+    this.intervalId = setInterval(this.play, this.speed);
+  };
+
+  stopButton = () => {
+    clearInterval(this.intervalId);
+  };
+
+  slow = () => {
+    this.speed = 1000;
+    this.startButton();
+  };
+
+  fast = () => {
+    this.speed = 100;
+    this.startButton();
+  };
+
+  clear = () => {
+    let grid = Array(this.rows)
+      .fill()
+      .map(() => Array(this.cols).fill(false));
+    this.setState({
+      gridFull: grid,
+      generation: 0
+    });
   };
 
   // A function to randomize the grid
