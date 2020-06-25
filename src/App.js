@@ -1,10 +1,4 @@
 import React, { Component } from 'react';
-import produce from 'immer'; //https://css-tricks.com/using-immer-for-react-state-management/
-
-// Instantiated a couple variables for the row and columns
-
-const numRows = 50;
-const numColumns = 50;
 
 // Logic to deal with the neighboring cells
 
@@ -30,8 +24,8 @@ class App extends Component {
     this.state = {
       generation: 0,
       grid: Array(this.rows)
-        .fills()
-        .map(() => Array(this.columns).fill(false)),
+        .fill()
+        .map(() => Array(this.columns).fill(0)),
     };
   }
 
@@ -59,7 +53,7 @@ class App extends Component {
   reset = () => {
     let grid = Array(this.rows)
       .fill()
-      .map(() => Array(this.cols).fill(false));
+      .map(() => Array(this.columns).fill(0));
     this.setState({
       gridFull: grid,
       generation: 0,
@@ -82,12 +76,12 @@ class App extends Component {
     });
   };
 
-  startButton = () => {
+  start = () => {
     clearInterval(this.intervalId);
-    this.intervalId = setInterval(this.play, this.speed);
+    this.intervalId = setInterval(this.runSim, this.speed);
   };
 
-  stopButton = () => {
+  stop = () => {
     clearInterval(this.intervalId);
   };
 
@@ -105,11 +99,11 @@ class App extends Component {
 
   randomGrid = () => {
     const rows = []; // Create rows
-    for (let i = 0; i < numRows; i++) {
+    for (let i = 0; i < this.rows; i++) {
       // A lot like the logic above, in the main function setting the grid. This will
       // randomly generate the cells on the grid to populate.
       rows.push(
-        Array.from(Array(numColumns), () => (Math.random() > 0.5 ? 1 : 0))
+        Array.from(Array(this.columns), () => (Math.random() > 0.5 ? 1 : 0))
       ); // the second parameter of Array.from is a mapping function that gives a key and
       // value, you can initialize the values, which I'm doing here randomly with math.random().
     }
@@ -123,8 +117,8 @@ class App extends Component {
     let currentGrid = this.state.grid;
     let newGrid = this.deepCopy(this.state.grid);
     // Iterate over the rows and columns
-    for (let i = 0; i < numRows; i++) {
-      for (let j = 0; j < numColumns; j++) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.columns; j++) {
         let neighbors = 0;
 
         // Check every neighboring cell
@@ -133,7 +127,12 @@ class App extends Component {
           const newI = i + a;
           const newJ = j + b;
           // Make sure we don't go beyond the neighboring cells
-          if (newI >= 0 && newI < numRows && newJ >= 0 && newJ < numColumns) {
+          if (
+            newI >= 0 &&
+            newI < this.rows &&
+            newJ >= 0 &&
+            newJ < this.columns
+          ) {
             neighbors += currentGrid[newI][newJ];
           }
         });
@@ -155,17 +154,45 @@ class App extends Component {
       <>
         <button
           onClick={() => {
-            this.runSim();
+            this.start();
           }}
         >
           {'Start'}
         </button>
         <button
           onClick={() => {
+            this.stop();
+          }}
+        >
+          {'Stop'}
+        </button>
+        <button
+          onClick={() => {
             this.randomGrid();
           }}
         >
-          Randomize
+          {'Randomize'}
+        </button>
+        <button
+          onClick={() => {
+            this.fast();
+          }}
+        >
+          {'Fast'}
+        </button>
+        <button
+          onClick={() => {
+            this.slow();
+          }}
+        >
+          {'Slow'}
+        </button>
+        <button
+          onClick={() => {
+            this.clear();
+          }}
+        >
+          {'Clear'}
         </button>
         <div></div>
       </>
