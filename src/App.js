@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import './index.css';
+import TheGrid from './TheGrid';
 
 // Logic to deal with the neighboring cells
 
@@ -19,8 +21,8 @@ class App extends Component {
   constructor() {
     super();
     this.speed = 100;
-    this.rows = 30;
-    this.columns = 50;
+    this.rows = 50;
+    this.columns = 40;
     this.state = {
       generation: 0,
       grid: Array(this.rows)
@@ -28,7 +30,6 @@ class App extends Component {
         .map(() => Array(this.columns).fill(0)),
     };
   }
-
   // This is to handle the different grid sizes
 
   gridSize = (size) => {
@@ -55,7 +56,7 @@ class App extends Component {
       .fill()
       .map(() => Array(this.columns).fill(0));
     this.setState({
-      gridFull: grid,
+      grid: grid,
       generation: 0,
     });
   };
@@ -68,11 +69,11 @@ class App extends Component {
 
   // A function to turn cells on and off
 
-  selectBox = (row, col) => {
-    let gridCopy = this.deepCopy(this.state.gridFull);
-    gridCopy[row][col] = !gridCopy[row][col];
+  selectBox = (row, column) => {
+    let gridCopy = this.deepCopy(this.state.grid);
+    gridCopy[row][column] = !gridCopy[row][column];
     this.setState({
-      gridFull: gridCopy,
+      grid: gridCopy,
     });
   };
 
@@ -87,12 +88,12 @@ class App extends Component {
 
   slow = () => {
     this.speed = 1000;
-    this.startButton();
+    this.start();
   };
 
   fast = () => {
     this.speed = 100;
-    this.startButton();
+    this.start();
   };
 
   // A function to randomize the grid
@@ -114,11 +115,14 @@ class App extends Component {
   };
 
   runSim = () => {
+    console.log('hello');
     let currentGrid = this.state.grid;
     let newGrid = this.deepCopy(this.state.grid);
     // Iterate over the rows and columns
     for (let i = 0; i < this.rows; i++) {
+      console.log('first loop');
       for (let j = 0; j < this.columns; j++) {
+        console.log('second loop');
         let neighbors = 0;
 
         // Check every neighboring cell
@@ -145,8 +149,8 @@ class App extends Component {
           newGrid[i][j] = 1;
         }
       }
-      this.setState({ grid: newGrid });
     }
+    this.setState({ grid: newGrid, generation: this.state.generation + 1 });
   };
 
   render() {
@@ -189,12 +193,18 @@ class App extends Component {
         </button>
         <button
           onClick={() => {
-            this.clear();
+            this.reset();
           }}
         >
           {'Clear'}
         </button>
-        <div></div>
+        <TheGrid
+          selectBox={this.selectBox}
+          grid={this.state.grid}
+          rows={this.rows}
+          columns={this.columns}
+        />
+        <h2>Generations: {this.state.generation}</h2>
       </>
     );
   }
