@@ -22,8 +22,8 @@ class App extends Component {
   constructor() {
     super();
     this.speed = 100;
-    this.rows = 20;
-    this.columns = 30;
+    this.rows = 25;
+    this.columns = 25;
     this.state = {
       generation: 0,
       grid: Array(this.rows)
@@ -36,16 +36,16 @@ class App extends Component {
   gridSize = (size) => {
     switch (size) {
       case '1':
-        this.rows = 20;
-        this.columns = 30;
+        this.rows = 25;
+        this.columns = 25;
         break;
       case '2':
-        this.rows = 40;
-        this.columns = 60;
+        this.rows = 35;
+        this.columns = 35;
         break;
       default:
-        this.rows = 60;
-        this.columns = 80;
+        this.rows = 50;
+        this.columns = 50;
     }
     this.reset();
   };
@@ -120,14 +120,11 @@ class App extends Component {
   };
 
   runSim = () => {
-    console.log('hello');
     let currentGrid = this.state.grid;
     let newGrid = this.deepCopy(this.state.grid);
     // Iterate over the rows and columns
     for (let i = 0; i < this.rows; i++) {
-      console.log('first loop');
       for (let j = 0; j < this.columns; j++) {
-        console.log('second loop');
         let neighbors = 0;
 
         // Check every neighboring cell
@@ -166,9 +163,9 @@ class App extends Component {
           id="size-menu"
           onSelect={this.handleSelect}
         >
-          <Dropdown.Item eventKey="1">20x30</Dropdown.Item>
-          <Dropdown.Item eventKey="2">60x40</Dropdown.Item>
-          <Dropdown.Item eventKey="3">80x60</Dropdown.Item>
+          <Dropdown.Item eventKey="1">25x25</Dropdown.Item>
+          <Dropdown.Item eventKey="2">35x35</Dropdown.Item>
+          <Dropdown.Item eventKey="3">50x50</Dropdown.Item>
         </DropdownButton>
         <button
           onClick={() => {
@@ -219,6 +216,30 @@ class App extends Component {
           columns={this.columns}
         />
         <h2>Generations: {this.state.generation}</h2>
+        <p>
+          The universe of the Game of Life is an infinite, two-dimensional
+          orthogonal grid of square cells, each of which is in one of two
+          possible states, live or dead, (or populated and unpopulated,
+          respectively). Every cell interacts with its eight neighbours, which
+          are the cells that are horizontally, vertically, or diagonally
+          adjacent. At each step in time, the following transitions occur: Any
+          live cell with fewer than two live neighbours dies, as if by
+          underpopulation. Any live cell with two or three live neighbours lives
+          on to the next generation. Any live cell with more than three live
+          neighbours dies, as if by overpopulation. Any dead cell with exactly
+          three live neighbours becomes a live cell, as if by reproduction.
+          These rules, which compare the behavior of the automaton to real life,
+          can be condensed into the following: Any live cell with two or three
+          live neighbours survives. Any dead cell with three live neighbours
+          becomes a live cell. All other live cells die in the next generation.
+          Similarly, all other dead cells stay dead. The initial pattern
+          constitutes the seed of the system. The first generation is created by
+          applying the above rules simultaneously to every cell in the seed;
+          births and deaths occur simultaneously, and the discrete moment at
+          which this happens is sometimes called a tick. Each generation is a
+          pure function of the preceding one. The rules continue to be applied
+          repeatedly to create further generations.
+        </p>
       </>
     );
   }
