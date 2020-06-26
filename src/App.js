@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './index.css';
 import TheGrid from './TheGrid';
+import { DropdownButton, Dropdown } from 'react-bootstrap';
 
 // Logic to deal with the neighboring cells
 
@@ -21,8 +22,8 @@ class App extends Component {
   constructor() {
     super();
     this.speed = 100;
-    this.rows = 50;
-    this.columns = 40;
+    this.rows = 20;
+    this.columns = 30;
     this.state = {
       generation: 0,
       grid: Array(this.rows)
@@ -35,18 +36,22 @@ class App extends Component {
   gridSize = (size) => {
     switch (size) {
       case '1':
-        this.columns = 30;
         this.rows = 20;
+        this.columns = 30;
         break;
       case '2':
-        this.columns = 60;
         this.rows = 40;
+        this.columns = 60;
         break;
       default:
-        this.columns = 80;
         this.rows = 60;
+        this.columns = 80;
     }
     this.reset();
+  };
+
+  handleSelect = (e) => {
+    this.gridSize(e);
   };
 
   // This will reset the grid when called
@@ -156,6 +161,15 @@ class App extends Component {
   render() {
     return (
       <>
+        <DropdownButton
+          title="Select a Size"
+          id="size-menu"
+          onSelect={this.handleSelect}
+        >
+          <Dropdown.Item eventKey="1">20x30</Dropdown.Item>
+          <Dropdown.Item eventKey="2">60x40</Dropdown.Item>
+          <Dropdown.Item eventKey="3">80x60</Dropdown.Item>
+        </DropdownButton>
         <button
           onClick={() => {
             this.start();
